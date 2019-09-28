@@ -8,7 +8,7 @@ import { TableModule } from '../table';
 import { PlaceModule } from '../place';
 import { OrderModule } from '../order';
 import { MenuModule } from '../menu';
-import { RequestItemModule } from "../request-item";
+import { RequestItemModule } from '../request-item';
 
 @Module({
     imports: [
@@ -43,5 +43,6 @@ import { RequestItemModule } from "../request-item";
         AppService,
     ],
 })
+
 export class AppModule {
 }
