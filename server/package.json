@@ -1,6 +1,7 @@
 {
   "name": "conc-orders-api",
   "version": "1.0.0",
+  "private": true,
   "description": "An API to serve ConcOrders-app application",
   "author": "Ruben Domingues",
   "homepage": "https://rubendomingues.pt/",
