@@ -31,7 +31,7 @@ Just run already prepared bash script:
 $ ./init
 ```
 It will setup the project for you (building the Docker images, starting docker-compose stack).
-The NestJS app running in dev mode will be exposed on `http://localhost` (port 80)
+The NestJS app running in dev mode will be exposed on `` (port 80)
 
 For IDE autocompletion to work, run `yarn` on the host machine.
 
@@ -56,7 +56,7 @@ and read all environment variables from `.env` file, which is created automatica
 ## Swagger
 
 RESTful APIs you can describe with already integrated Swagger.
-To see all available endpoints visit http://localhost/api/docs
+To see all available endpoints visit /api/docs
 
 ## TypeORM integrated
 

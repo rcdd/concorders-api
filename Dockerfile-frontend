@@ -1,0 +1,14 @@
+# CLIENT SIDE
+FROM node:lts-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV development
+
+COPY /client/package.json ./
+RUN npm install
+COPY ./client .
+
+EXPOSE 8080
+
+CMD ["npm", "run", "serve"]

@@ -1,13 +1,26 @@
-version: "2"
+version: "3.7"
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    container_name: frontend
+    volumes:
+      - ./client/src:/app/src
+    ports:
+      - 8080:8080
+
   nest:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-nest
     container_name: nest
     depends_on:
       - db
     volumes:
-      - ./server:/app/server
-      - .env:/app/.env
+      - ./server/src:/app/src
+    ports:
+      - 3000:3000
 
   nginx:
     build:
@@ -16,11 +29,14 @@ services:
     container_name: nest-nginx
     depends_on:
       - nest
+      - frontend
     environment:
       - NGINX_SERVER_NAME=localhost
       - NEST_HOST=nest
       - NEST_PORT=3000
       - NGINX_MAX_BODY=100M
+      - ANGULAR_HOST=frontend
+      - ANGULAR_PORT=8080
     ports:
       - 80:80
 
@@ -48,5 +64,6 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: rootpassword
+
 volumes:
   mariadbdata:
