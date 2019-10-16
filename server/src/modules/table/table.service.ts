@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Table, TableFillableFields } from './table.entity';
-import { Place, PlacesService } from '../place';
+import { PlacesService } from '../place';
 
 @Injectable()
 export class TablesService {

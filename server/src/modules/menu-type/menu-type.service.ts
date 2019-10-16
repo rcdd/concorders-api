@@ -9,8 +9,7 @@ export class MenuTypeService {
 
     constructor(
         @InjectRepository(MenuType)
-        private readonly menuTypeRepository: Repository<MenuType>,
-        // private readonly orderService: OrdersService
+        private readonly menuTypeRepository: Repository<MenuType>
     ) {
     }
 
