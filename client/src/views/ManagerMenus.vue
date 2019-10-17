@@ -14,6 +14,10 @@
                     fixed-tabs>
                 <v-tab v-for="item of menus"
                        :key="item.id">
+                    <v-icon small
+                            class="mr-3">
+                        mdi-{{item.icon}}
+                    </v-icon>
                     {{ item.name }}
                     <v-icon small
                             class="ml-8"
@@ -119,6 +123,11 @@
                                     <v-text-field v-model="editedMenuType.name"
                                                   label="Nome"></v-text-field>
                                 </v-col>
+
+                                <v-col cols="12" sm="12" md="12">
+                                    <v-text-field v-model="editedMenuType.icon"
+                                                  label="Icon"></v-text-field>
+                                </v-col>
                             </v-row>
                         </v-container>
                     </v-card-text>
@@ -164,7 +173,8 @@
                 },
                 editedMenuType: {
                     id: Number,
-                    name: String
+                    name: String,
+                    icon: String
                 },
                 dialogEditItem: false,
                 dialogEditMenuType: false
@@ -204,6 +214,7 @@
             newMenuType() {
                 this.editedMenuType = {
                     name: '',
+                    icon: ''
                 };
                 this.dialogEditMenuType = true;
             },
@@ -261,14 +272,12 @@
 
                 //Update item
                 if (this.editedMenuType.id) {
-                    this.$http.post('/api/change-menu-type-name', {
-                        menuTypeId: this.editedMenuType.id,
-                        newName: this.editedMenuType.name
-                    }).then(async () => {
-                        this.getMenus();
-                        this.dialogEditMenuType = false;
-                        this.editedMenuType = {};
-                    }).catch(e => {
+                    this.$http.post('/api/edit-menu-type', this.editedMenuType)
+                        .then(async () => {
+                            this.getMenus();
+                            this.dialogEditMenuType = false;
+                            this.editedMenuType = {};
+                        }).catch(e => {
                         throw (e);
                     });
                 } else { //New item
