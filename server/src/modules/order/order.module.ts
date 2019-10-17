@@ -7,7 +7,7 @@ import { RequestItemModule } from '../request-item';
 @Module({
     imports: [
         TypeOrmModule.forFeature([Order]),
-        RequestItemModule
+        RequestItemModule,
     ],
     exports: [OrdersService],
     providers: [

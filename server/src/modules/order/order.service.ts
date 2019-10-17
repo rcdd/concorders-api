@@ -16,14 +16,31 @@ export class OrdersService {
     }
 
     async get(id: number) {
-        return this.orderRepository.findOne(id, {relations: ['request']});
+        return await this.orderRepository.findOne(id);
+    }
+
+    async getWithRequest(id: number) {
+        return await this.orderRepository.createQueryBuilder('order')
+            .innerJoinAndSelect('order.request', 'request')
+            .innerJoinAndSelect('request.menuItem', 'menuItem')
+            .where('order.id = :id')
+            .setParameter('id', id)
+            .getOne();
+    }
+
+    async getWithPlace(id: number) {
+        return await this.orderRepository.createQueryBuilder('order')
+            .innerJoinAndSelect('order.place', 'place')
+            .where('order.id = :id')
+            .setParameter('id', id)
+            .getOne();
     }
 
     async sumTotal(order: OrderFillableFields): Promise<number> {
         let total = 0;
 
         order.request.forEach(item => {
-            total += item.price * item.amount;
+            total += (item.menuItem.price * item.amount);
         });
         return total;
     }
@@ -31,6 +48,7 @@ export class OrdersService {
     async getActiveOrder(placeId: number) {
         return await this.orderRepository.createQueryBuilder('order')
             .innerJoinAndSelect('order.request', 'request')
+            .innerJoinAndSelect('request.menuItem', 'menuItem')
             .where('order.place = :placeId')
             .andWhere('order.isClosed = false')
             .setParameter('placeId', placeId)
@@ -38,7 +56,7 @@ export class OrdersService {
     }
 
     async updateOrder(orderId: number, requests: RequestItemFillableFields[]) {
-        const order = await this.get(orderId);
+        let order = await this.getWithRequest(orderId);
 
         if (!order) {
             throw new NotAcceptableException(
@@ -52,34 +70,51 @@ export class OrdersService {
             );
         }
 
-        await order.request.forEach(async item => {
-            if (!requests.some(_item => _item.name === item.name)) {
-                await this.requestItemService.delete(item.id);
-                const index = await order.request.findIndex(r => r.id === item.id);
-                order.request.splice(index, 1);
-                order.total = await this.sumTotal(order);
-                await this.orderRepository.update(order.id, {total: order.total});
-            }
-        });
-
-        await requests.forEach(req => {
-            const elm = order.request.find(e => e.name === req.name);
-            if (elm) {
-                elm.amount = req.amount;
+        for (const item of requests) {
+            if (item.amount === 0) {
+                order = await this.checkToRemove(order, item);
             } else {
-                const newItem = new RequestItem();
-                Object.assign(newItem, req);
-                order.request.push(newItem);
+                order = await this.checkToAdd(order, item);
             }
-        });
+        }
 
         order.total = await this.sumTotal(order);
+
+        if (order.request.length === 0) {
+            await this.orderRepository.save(order);
+            return await this.closeOrder(orderId);
+        }
 
         return await this.orderRepository.save(order);
     }
 
+    async checkToRemove(order, item) {
+        if (item.id) {
+            await this.requestItemService.delete(item.id);
+            const index = await order.request.findIndex(r => r.id === item.id);
+            order.request.splice(index, 1);
+            order.total = await this.sumTotal(order);
+            await this.orderRepository.update(order.id, {total: order.total});
+            return order;
+        } else {
+            return order;
+        }
+    }
+
+    async checkToAdd(order, item) {
+        const elm = order.request.find(e => e.menuItem.name === item.menuItem.name);
+        if (elm) {
+            elm.amount = item.amount;
+        } else if (item.amount && item.amount > 0) {
+            const newItem = new RequestItem();
+            Object.assign(newItem, item);
+            order.request.push(newItem);
+        }
+        return order;
+    }
+
     async closeOrder(id: number) {
-        const order = await this.get(id);
+        const order = await this.getWithPlace(id);
 
         if (!order) {
             throw new NotAcceptableException(
