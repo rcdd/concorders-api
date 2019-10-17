@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Order } from '../order';
+import { Menu } from '../menu';
 
 @Entity({
     name: 'requestItem',
@@ -11,22 +12,15 @@ export class RequestItem {
     @ManyToOne(type => Order, order => order.request, {onDelete: 'CASCADE'})
     order: Order;
 
-    @Column({length: 255})
-    name: string;
+    @ManyToOne(type => Menu)
+    menuItem: Menu;
 
     @Column()
     amount: number;
-
-    @Column({nullable: false, type: 'float'})
-    price: number;
-
-    @Column({length: 255})
-    type: string;
 }
 
 export class RequestItemFillableFields {
-    name: string;
+    order: Order;
+    menuItem: Menu;
     amount: number;
-    price: number;
-    type: string;
 }

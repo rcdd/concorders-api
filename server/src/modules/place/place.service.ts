@@ -12,7 +12,7 @@ export class PlacesService {
     constructor(
         @InjectRepository(Place)
         private readonly placeRepository: Repository<Place>,
-        private readonly orderService: OrdersService
+        private readonly orderService: OrdersService,
     ) {
     }
 
@@ -69,25 +69,42 @@ export class PlacesService {
                 'Place already in use.',
             );
         }
+        if (_order.request.length === 0) {
+            throw new NotAcceptableException(
+                'Order without any request.',
+            );
+        }
 
         const order = new Order();
-        order.request = _order.request;
 
         place.order.push(order);
 
+        order.request = [];
         await _order.request.forEach(_request => {
             const request = new RequestItem();
-            request.name = _request.name;
+            request.menuItem = _request.menuItem;
             request.amount = _request.amount;
-            request.price = _request.price;
-            request.type = _request.type;
-
             order.request.push(request);
         });
 
         order.total = await this.orderService.sumTotal(order);
 
         place.inUse = true;
+
+        return await this.placeRepository.save(place);
+    }
+
+    async closePlace(placeId) {
+        const place = await this.get(placeId);
+
+        if (!place) {
+            throw new NotAcceptableException(
+                'Place not found.',
+            );
+        }
+        place.inUse = false;
+        place.peopleCount = 0;
+
         return await this.placeRepository.save(place);
     }
 

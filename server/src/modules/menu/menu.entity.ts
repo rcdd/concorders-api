@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, ManyToMany } from 'typeorm';
 import { MenuType } from '../menu-type';
+import { RequestItem } from '../request-item';
 
 @Entity({
     name: 'menus',
@@ -12,7 +13,7 @@ export class Menu {
     name: string;
 
     @Column({type: 'float'})
-    price: string;
+    price: number;
 
     @ManyToOne(type => MenuType, menuType => menuType.menu, {eager: true})
     type: MenuType;
@@ -21,6 +22,6 @@ export class Menu {
 export class MenuFillableFields {
     id: number;
     name: string;
-    price: string;
+    price: number;
     type: MenuType;
 }

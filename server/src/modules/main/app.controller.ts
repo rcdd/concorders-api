@@ -86,7 +86,12 @@ export class AppController {
 
     @Post('update-order')
     async updateOrder(@Body() payload: { orderId: number, requests: RequestItemFillableFields[] }): Promise<any> {
-        return await this.orderService.updateOrder(payload.orderId, payload.requests);
+        const order = await this.orderService.updateOrder(payload.orderId, payload.requests);
+
+        if (order.isClosed) {
+            await this.placeService.closePlace(order.place.id);
+        }
+        return order;
     }
 
     @Post('close-order')
@@ -131,9 +136,9 @@ export class AppController {
         return await this.menuTypeService.create(payload);
     }
 
-    @Post('change-menu-type-name')
-    async changeMenuTypeName(@Body() payload: { menuTypeId: number, newName: string }): Promise<MenuType> {
-        return await this.menuTypeService.changeName(payload.menuTypeId, payload.newName);
+    @Post('edit-menu-type')
+    async changeMenuTypeName(@Body() payload: MenuTypeFillableFields): Promise<MenuType> {
+        return await this.menuTypeService.update(payload);
     }
 
     @Delete('remove-menu-type/:menuTypeId')

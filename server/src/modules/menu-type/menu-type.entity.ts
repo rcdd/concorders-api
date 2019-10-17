@@ -13,10 +13,14 @@ export class MenuType {
 
     @Column({length: 255})
     name: string;
+
+    @Column({length: 255})
+    icon: string;
 }
 
 export class MenuTypeFillableFields {
     id: number;
     name: string;
     menu: Menu;
+    icon: string;
 }

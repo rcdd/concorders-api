@@ -14,7 +14,7 @@ export class RequestItemsService {
     }
 
     async get(id: number) {
-        return this.requestItemRepository.findOne(id);
+        return this.requestItemRepository.findOne(id, {relations: ['menuItem', 'order']});
     }
 
     async delete(requestId: number) {

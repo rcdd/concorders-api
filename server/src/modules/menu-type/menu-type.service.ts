@@ -28,8 +28,8 @@ export class MenuTypeService {
             .getOne();
     }
 
-    async changeName(menuTypeId: number, newName: string) {
-        const menuType = await this.get(menuTypeId);
+    async update(payload: MenuTypeFillableFields) {
+        const menuType = await this.get(payload.id);
 
         if (!menuType) {
             throw new NotAcceptableException(
@@ -37,14 +37,18 @@ export class MenuTypeService {
             );
         }
 
-        const checkMenuType = await this.getByName(newName);
-        if (checkMenuType) {
-            throw new NotAcceptableException(
-                'Menu type with provided name already exist.',
-            );
+        if (payload.name !== menuType.name) {
+            const checkMenuType = await this.getByName(payload.name);
+            if (checkMenuType) {
+                throw new NotAcceptableException(
+                    'Menu type with provided name already exist.',
+                );
+            }
+
+            menuType.name = payload.name;
         }
 
-        menuType.name = newName;
+        menuType.icon = payload.icon;
 
         return await this.menuTypeRepository.save(menuType);
     }
